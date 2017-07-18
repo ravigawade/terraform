@@ -94,6 +94,13 @@ resource "aws_security_group" "database" {
                 security_groups = ["${aws_security_group.backend.id}"]
         }
 
+        ingress {
+                from_port = "22"
+                to_port = "22"
+                protocol = "tcp"
+                cidr_blocks = ["0.0.0.0/0"]
+        }
+
         egress {
                 from_port = 0
                 to_port = 0
@@ -106,6 +113,33 @@ resource "aws_security_group" "database" {
         }
 
 }
+
+// workaround to allow database servers connect to port 27017 for replica set
+// see https://github.com/hashicorp/terraform/issues/28#issuecomment-51536163
+resource "aws_security_group" "database-replica" {
+        name = "database-replica"
+        vpc_id = "${var.vpc_id}"
+
+        ingress {
+                from_port = "${var.mongodb_port}"
+                to_port = "${var.mongodb_port}"
+                protocol = "tcp"
+                security_groups = ["${aws_security_group.database.id}"]
+        }
+
+        egress {
+                from_port = 0
+                to_port = 0
+                protocol = "-1"
+                cidr_blocks = ["0.0.0.0/0"]
+        }
+
+        tags {
+                Name = "sg-database-replica"
+        }
+
+}
+
 
 ### template
 data "template_file" "mount_ebs" {
@@ -216,9 +250,9 @@ resource "aws_instance" "database" {
         availability_zone = "${var.aws_default_az}"
         count = "${var.ec2_count_database}"
         subnet_id = "${var.vpc_subnet_id}"
-        vpc_security_group_ids = ["${aws_security_group.database.id}"]
+        vpc_security_group_ids = ["${aws_security_group.database.id}", "${aws_security_group.database-replica.id}"]
         key_name = "${aws_key_pair.ec2-key.key_name}"
-        associate_public_ip_address = false
+        associate_public_ip_address = true
         root_block_device {
               volume_size = "${var.ec2_root_ebs_size}"
         }
