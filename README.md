@@ -1,3 +1,5 @@
+## Terraform
+
 ### Install terraform
 
 This code requires terraform >= 0.9.11. Download terraform [here](https://www.terraform.io/downloads.html) and install it [here](https://www.terraform.io/intro/getting-started/install.html)
@@ -30,5 +32,28 @@ Destroy everything
 ```
 $ terraform destroy
 ```
+
+## Ansible
+
+### Install ansible
+
+Install latest ansible via pip:
+
+```
+$ pip install ansible
+```
+
+### Setup AWS credentials
+
+Like this step in Terraform
+
+### Run ansible playbook
+
+Run current playbook to install necessary packages:
+
+```
+$ ansible-playbook playbook.yml
+```
+
 
 
