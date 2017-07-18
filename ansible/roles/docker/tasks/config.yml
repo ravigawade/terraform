@@ -1,0 +1,38 @@
+---
+- name: Create docker images path {{ docker_images_path }}
+  file:
+    path: "{{ docker_images_path }}"
+    state: directory
+  register: custom_docker_path
+  tags:
+    - docker
+
+- name: Stop docker service
+  service:
+    name: docker
+    state: stopped
+  when:
+    - custom_docker_path.changed
+  tags:
+    - docker
+
+- name: Configure docker images storage to {{ docker_images_path }}
+  lineinfile:
+    dest: /lib/systemd/system/docker.service
+    regexp: '^(ExecStart=/usr/bin/dockerd.*-H fd://$)'
+    line: \1 -g {{ docker_images_path }}
+    backrefs: yes
+    insertbefore: '^ExecReload=*'
+  notify:
+    - systemctl daemon-reload
+    - restart docker
+  tags:
+    - docker
+
+- name: Start docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  tags:
+    - docker

@@ -1,0 +1,7 @@
+---
+- name: Restart mongodb
+  service:
+    name: mongod
+    state: restarted
+  tags:
+    - mongodb-standalone

@@ -1,0 +1,11 @@
+---
+- name: Setup database servers
+  hosts: tag_role_database
+  user: ubuntu
+  become: true
+  gather_facts: true
+  roles:
+    - { role: common, ec2_fake_dns: true }
+    - ssh
+    - { role: mongodb, mongo_replica: true }
+

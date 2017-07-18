@@ -1,0 +1,6 @@
+---
+- name: Install python utility packages
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - "{{ python_pkgs }}"

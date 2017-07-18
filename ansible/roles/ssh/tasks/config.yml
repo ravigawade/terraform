@@ -1,0 +1,8 @@
+---
+- name: Setup keys for user {{ ansible_user }}
+  authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ item }}"
+  with_file: "{{ ssh_admin_keys }}"
+  tags:
+    - ssh

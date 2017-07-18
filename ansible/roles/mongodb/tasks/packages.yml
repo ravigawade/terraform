@@ -1,0 +1,22 @@
+---
+- name: Add public GPG key of mongodb repo
+  apt_key:
+    keyserver: "{{ mongo_key_server }}"
+    id: "{{ mongo_key_id }}"
+  tags:
+    - mongodb
+
+- name: Add mongodb repo
+  apt_repository:
+    repo: "{{ mongo_repo }}"
+    update_cache: yes
+  tags:
+    - mongodb
+
+- name: Install mongodb version {{ mongo_version }}
+  apt:
+    name: mongodb-org
+    state: present
+  tags:
+    - mongodb
+

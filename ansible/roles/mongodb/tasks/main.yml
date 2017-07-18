@@ -1,0 +1,5 @@
+---
+- include: packages.yml
+- include: config.yml
+- include: replica.yml
+  when: mongo_replica

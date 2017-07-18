@@ -1,0 +1,43 @@
+---
+- name: Add GPG key of Docker repo
+  apt_key:
+    url: "{{ docker_gpg }}"
+    state: present
+  tags:
+    - docker
+
+- name: Add repository of Docker
+  apt_repository:
+    repo: "{{ docker_repo }}"
+    state: present
+  tags:
+    - docker
+
+- name: Install docker-ce
+  apt:
+    name: docker-ce
+    state: present
+    update_cache: yes
+  tags:
+    - docker
+
+- name: Uninstall docker-py
+  pip:
+    name: docker-py
+    state: absent
+  tags:
+    - docker
+
+- name: Install docker python lib
+  pip:
+    name: docker
+    state: present
+  tags:
+    - docker
+
+- name: Install docker-compose
+  pip:
+    name: docker-compose
+    state: present
+  tags:
+    - docker

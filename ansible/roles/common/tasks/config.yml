@@ -1,0 +1,12 @@
+---
+- name: Generate /etc/hosts for servers
+  lineinfile:
+    dest: /etc/hosts
+    line: "{% if item != 'localhost' %}{{ hostvars[item]['ec2_private_ip_address'] }} {{ hostvars[item]['ec2_tag_Name'] }}{% endif %}"
+    state: present
+    insertafter: EOF
+    backup: yes
+  with_items: "{{ groups['ec2'] }}"
+  when: ec2_fake_dns
+  tags:
+      - common

@@ -1,0 +1,36 @@
+---
+# ec2 vars
+ebs_mount_point: /mnt/data
+
+
+# drone
+drone_env_file: /etc/drone/dronerc
+drone_image: drone/drone
+drone_image_tag: 0.4
+drone_volume: /var/lib/drone
+drone_port: 8000
+
+# ssh
+dev_user: dev
+ssh_dev_keys:
+  - cuong.pub
+ssh_admin_keys:
+  - cuong.pub
+ssh_keys_remove:
+# mongodb
+mongo_user: "mongodb"
+mongo_group: "{{ mongo_user }}"
+mongo_key_server: "hkp://keyserver.ubuntu.com:80"
+mongo_key_id: "EA312927"
+mongo_db_dir: "{{ ebs_mount_point }}/mongo"
+mongo_version: 3.2
+mongo_repo: "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/{{ mongo_version }} multiverse"
+mongo_port: 27017
+mongo_db_name: "foo"
+mongo_replica: "{{ use_replica | default('False') }}"
+mongo_replica_name: "{{ replica_name | default('myreplica') }}"
+mongo_master_host: "{{ master_host | default(groups['tag_role_database'][0]) }}"
+mongo_master_priority: 2
+mongo_standby_priority: 1
+mongo_url: "mongodb://{% if mongo_replica %}{% for h in groups['tag_role_database'] %}{{ hostvars[h]['ec2_private_ip_address']}}:{{ mongo_port }}{% if not loop.last %},{% endif %}{% endfor %}/{{ mongo_db_name }}?replicaSet={{ mongo_replica_name }}{% else %}127.0.0.1/{{ mongo_db_name }}{% endif %}"
+

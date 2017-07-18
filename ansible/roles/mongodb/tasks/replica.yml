@@ -1,0 +1,19 @@
+---
+- name: Deliver replica script
+  template:
+    src: replica.js
+    dest: "/tmp/replica.js"
+  delegate_to: "{{ mongo_master_host }}"
+  tags:
+    - mongodb
+    - mongodb-replica
+
+- name: Setup mongodb replica
+  shell: mongo /tmp/replica.js
+  changed_when: False
+  delegate_to: "{{ mongo_master_host }}"
+  register: replica
+  failed_when: replica.rc != 0
+  tags:
+    - mongodb
+    - mongodb-replica

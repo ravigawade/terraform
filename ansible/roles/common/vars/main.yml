@@ -1,0 +1,25 @@
+# vim:ft=ansible:
+common_packages_list:
+  - build-essential
+  - gcc
+  - g++
+  - vim
+  - wget
+  - curl
+  - man
+  - tmux
+  - htop
+  - atop
+  - strace
+  - rsync
+  - dnsutils
+  - openssl
+  - zip
+  - unzip
+  - postfix
+  - mailutils
+  - sharutils
+  - sshpass
+  - apt-transport-https
+  - psmisc
+  - git

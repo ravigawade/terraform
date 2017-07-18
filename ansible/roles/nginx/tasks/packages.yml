@@ -1,0 +1,22 @@
+---
+- name: Add GPG of Nginx repo
+  apt_key:
+    url: "{{ nginx_key_file }}"
+    state: present
+  tags:
+    - nginx
+
+- name: Setup Nginx repo
+  copy:
+    src: nginx.list
+    dest: /etc/apt/sources.list.d/
+  tags:
+    - nginx
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: Yes
+  tags:
+    - nginx

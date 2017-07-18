@@ -1,0 +1,71 @@
+---
+- name: Patch grub.cfg to enable memory cgroup support enabled
+  lineinfile:
+    dest: /etc/default/grub
+    regexp: '(GRUB_CMDLINE_LINUX_DEFAULT=)\"(.*console=ttyS0)\"$'
+    line: '\1"\2 cgroup_enable=memory swapaccount=1"'
+    insertafter: 'GRUB_DISTRIBUTOR*'
+    backrefs: yes
+  notify:
+    - update grub
+  register: patch_grub
+  tags:
+    - drone
+
+- name: Flush handlers
+  meta: flush_handlers
+  tags:
+    - drone
+
+- name: Restart after patched grub
+  shell: sleep 2 && /sbin/shutdown -r now "Reboot after patched grub"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when:
+    - patch_grub.changed
+  tags:
+    - drone
+
+- name: Wait for server to boot up
+  local_action:
+    wait_for
+    host="{{ inventory_hostname }}"
+    delay=30
+    timeout=300
+    port=22
+    search_regex='OpenSSH'
+  become: false
+  when:
+    - patch_grub.changed
+  tags:
+    - drone
+
+- name: Create /etc/drone
+  file:
+    path="{{ drone_env_file | dirname }}"
+    state=directory
+  tags:
+    - drone
+
+- name: Deliver dronerc
+  template:
+    src=dronerc
+    dest="{{ drone_env_file }}"
+  tags:
+    - drone
+
+- name: Run drone container
+  docker_container:
+    image: "{{ drone_image }}:{{ drone_image_tag }}"
+    env_file: "{{ drone_env_file }}"
+    ports: "{{ drone_port }}:8000"
+    state: started
+    volumes:
+      - "{{ drone_volume }}:/var/lib/drone"
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart_policy: always
+    detach: True
+    name: drone
+  tags:
+    - drone

@@ -1,0 +1,8 @@
+---
+- name: Pull drone docker image
+  docker_image:
+    name="{{ drone_image }}"
+    tag="{{ drone_image_tag }}"
+    state=present
+  tags:
+    - drone

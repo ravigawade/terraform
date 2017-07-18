@@ -1,0 +1,31 @@
+---
+- name: Create mongodb directory
+  file:
+    path: "{{ mongo_db_dir }}"
+    state: directory
+    owner: "{{ mongo_user }}"
+    group: "{{ mongo_group }}"
+  tags:
+    - mongodb
+
+- name: Deliver configuration file
+  template:
+    src: mongod.conf
+    dest: "/etc/mongod.conf"
+  notify:
+    - Restart mongodb
+  tags:
+    - mongodb
+
+- name: Start mongodb
+  service:
+    name: mongod
+    state: started
+    enabled: Yes
+  tags:
+    - mongodb
+
+- name: Flush handlers
+  meta: flush_handlers
+  tags:
+    - mongodb
